@@ -1,0 +1,34 @@
+frontend/
+├── public/
+│   ├── index.html             # Main HTML file
+│   ├── favicon.ico            # Website favicon
+│   └── assets/                # Static assets like images, fonts, etc.
+│       ├── images/
+│       └── fonts/
+├── src/
+│   ├── components/            # Reusable components
+│   │   ├── Header.jsx
+│   │   ├── Footer.jsx
+│   │   ├── Button.jsx
+│   │   └── ...
+│   ├── pages/                 # Full-page components
+│   │   ├── HomePage.jsx
+│   │   ├── AboutPage.jsx
+│   │   ├── UploadPage.jsx
+│   │   └── ...
+│   ├── styles/                # CSS or SCSS files
+│   │   ├── global.css         # Global styles
+│   │   ├── variables.css      # CSS variables
+│   │   ├── components/        # Component-specific styles
+│   │   │   ├── Header.css
+│   │   │   └── ...
+│   │   ├── pages/             # Page-specific styles
+│   │       ├── HomePage.css
+│   │       └── ...
+│   ├── App.jsx                # Main app component
+│   ├── index.js               # React entry point
+│   └── utils/                 # Utility functions
+│       ├── api.js             # Axios API calls
+│       └── helpers.js         # General helpers
+├── package.json               # Frontend dependencies and scripts
+└── .env                       # Frontend environment variables
