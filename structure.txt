@@ -32,3 +32,18 @@ frontend/
 │       └── helpers.js         # General helpers
 ├── package.json               # Frontend dependencies and scripts
 └── .env                       # Frontend environment variables
+
+backend/
+├── src/
+│   ├── controllers/           
+│   │   ├── fileController.js   # Logic for file operations
+│   ├── routes/
+│   │   ├── fileRoutes.js       # API routes for files
+│   ├── config/
+│   │   └── serverConfig.js     # Server configuration
+│   ├── uploads/                # Temporary file uploads
+│   ├── app.js                  # Express app setup
+│   └── server.js               # Server entry point
+├── package.json
+└── .env
+
