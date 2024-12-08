@@ -172,6 +172,11 @@ app.get("/api/files/preview/:filename", (req, res) => {
 });
 
 
+app.get("/notes",(req,res)=>{
+  res.sendFile("frontend\src\pages\Note.js")
+})
+
+
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
