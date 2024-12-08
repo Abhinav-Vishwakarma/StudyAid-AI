@@ -12,7 +12,7 @@ frontend/
 │   │   ├── Button.jsx
 │   │   └── ...
 │   ├── pages/                 # Full-page components
-│   │   ├── HomePage.jsx
+│   │   ├── Semester.jsx
 │   │   ├── AboutPage.jsx
 │   │   ├── UploadPage.jsx
 │   │   └── ...
@@ -23,7 +23,7 @@ frontend/
 │   │   │   ├── Header.css
 │   │   │   └── ...
 │   │   ├── pages/             # Page-specific styles
-│   │       ├── HomePage.css
+│   │       ├── Semester.css
 │   │       └── ...
 │   ├── App.jsx                # Main app component
 │   ├── index.js               # React entry point
