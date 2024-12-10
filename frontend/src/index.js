@@ -7,6 +7,7 @@ import reportWebVitals from './reportWebVitals';
 import Semester from './pages/Semester';
 import Subject from './pages/Subject';
 import StudyPulseLoader from './components/SudyPulseLoader';
+import MainPage from './pages/MainPage';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
 <BrowserRouter>
