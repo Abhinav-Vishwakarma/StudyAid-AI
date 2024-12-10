@@ -38,17 +38,27 @@ app.post('/generate-description', async (req, res) => {
         // console.log(topic)
         // Summarize the topic using Hugging Face model
         const summary = await axios.post(
-            'https://api-inference.huggingface.co/models/meta-llama/Llama-3.2-1B',
-            { inputs: topic },
+            'https://api-inference.huggingface.co/models/Qwen/Qwen2.5-Coder-32B-Instruct/v1/chat/completions',
+            { 
+              "model": "Qwen/Qwen2.5-Coder-32B-Instruct",
+              "messages": [
+              {
+                "role": "user",
+                "content": {topic}
+              }
+            ],
+              "max_tokens": 500,
+              "stream": false
+          },
             {
                 headers: {
                     Authorization: `Bearer ${process.env.HF_API_KEY}`,
                 },
             }
         );
-        // console.log(summary)
+        console.log(summary)
         // Return the generated description/summary
-        res.json({ description: summary.data[0].generated_text });
+        // res.json({ description: summary.data[0].generated_text });
     } catch (error) {
         console.error(error);
         res.status(500).send('Error generating description.');
@@ -172,9 +182,8 @@ app.get("/api/files/preview/:filename", (req, res) => {
 });
 
 
-app.get("/notes",(req,res)=>{
-  res.sendFile("frontend\src\pages\Note.js")
-})
+
+
 
 
 // Start the server
