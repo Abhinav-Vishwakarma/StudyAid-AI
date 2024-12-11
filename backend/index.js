@@ -6,6 +6,7 @@ import multer from 'multer';
 import pdfParse from 'pdf-parse';
 import fs from "fs";
 import path from "path";
+import mysql from "mysql";
 
 dotenv.config({ path: "../.env" });
 
@@ -26,6 +27,41 @@ app.use(express.json());
 // Set up multer for file uploads (in-memory storage for PDFs)
 // const storage = multer.memoryStorage();
 // const upload = multer({ storage: storage });
+
+const connection = mysql.createConnection({
+  host: 'localhost',      // Database host
+  user: 'root',  // Your database username
+  password: '', // Your database password
+  database: 'topic_metadata'  // The name of the database
+});
+
+// Connect to the database
+// connection.connect((err) => {
+//   if (err) {
+//     console.error('Error connecting to the database:', err.message);
+//     return;
+//   }
+//   console.log('Connected to the MySQL database.');
+// });
+
+// // Example query
+// connection.query('SELECT * FROM tc', (err, results) => {
+//   if (err) {
+//     console.error('Error executing query:', err.message);
+//     return;
+//   }
+//   console.log('Query results:', results);
+// });
+
+// // Close the connection when done
+// connection.end((err) => {
+//   if (err) {
+//     console.error('Error closing the connection:', err.message);
+//     return;
+//   }
+//   console.log('Database connection closed.');
+// });
+
 
 // Route to handle topic and description generation
 app.post('/generate-description', async (req, res) => {
@@ -66,23 +102,131 @@ app.post('/generate-description', async (req, res) => {
 });
 
 // Route to handle PDF upload and text extraction
-// app.post('/upload-pdf', upload.single('file'), async (req, res) => {
-//     try {
-//         if (!req.file) {
-//             return res.status(400).send({ error: 'No file uploaded' });
-//         }
 
-//         // Extract text from the uploaded PDF file
-//         const pdfBuffer = req.file.buffer;
-//         const data = await pdfParse(pdfBuffer);
+app.post('/summarise', async (req, res) => {
+  try {
+    const dir = req.body.dir; // Access 'dir' from the request body
+    const previewIndex = dir.indexOf('/preview/');
+    if (previewIndex !== -1) {
+      const filePathbuf = decodeURIComponent(dir.substring(previewIndex + '/preview/'.length)).replace(/\//g, '\\');
+      const pdfPath = `${BASE_DIR}\\${filePathbuf}`;
+      
+      console.log(`Processing PDF file at: ${pdfPath}`);
 
-//         // Return the extracted text
-//         res.json({ text: data.text });
-//     } catch (error) {
-//         console.error('Error processing PDF:', error);
-//         res.status(500).send({ error: 'Failed to process PDF' });
+      // Ensure the file exists
+      if (!fs.existsSync(pdfPath)) {
+        return res.status(404).json({ error: "PDF file not found" });
+      }
+
+      // Read the PDF file and extract text
+      const pdfBuffer = fs.readFileSync(pdfPath);
+      const data = await pdfParse(pdfBuffer);
+      // console.log(data.text)
+      // Return the extracted text
+      // res.json({ text: data.text });
+      // const data_for_summary=JSON.stringify(data.text)
+      // const response = await fetch(
+      //   "https://api-inference.huggingface.co/models/facebook/bart-large-cnn",
+      //   {
+      //     headers: {
+      //       Authorization: "Bearer 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",
+      //       "Content-Type": "application/json",
+      //     },
+      //     method: "POST",
+      //     body: JSON.stringify(data.text),
+      //   }
+      // );
+      // const result = await response.json();
+      res.json({ text: data.text });
+      // return result;
+      console.log(result)
+    } else {
+      res.status(400).json({ error: "Invalid directory format in 'dir' field" });
+    }
+  } catch (error) {
+    console.error('Error processing PDF:', error);
+    res.status(500).send({ error: 'Failed to process PDF' });
+  }
+});
+
+// Helper function to split text into chunks
+// const chunkText = (text, maxLength) => {
+//   const chunks = [];
+//   let start = 0;
+//   while (start < text.length) {
+//     chunks.push(text.slice(start, start + maxLength));
+//     start += maxLength;
+//   }
+//   return chunks;
+// };
+
+// // Endpoint to summarise PDF content
+// app.post('/summarise', async (req, res) => {
+//   try {
+//     const dir = req.body.dir; // Access 'dir' from the request body
+//     const previewIndex = dir.indexOf('/preview/');
+//     if (previewIndex === -1) {
+//       return res.status(400).json({ error: "Invalid directory format in 'dir' field" });
 //     }
+
+//     // Extract and decode the PDF path
+//     const filePathbuf = decodeURIComponent(dir.substring(previewIndex + '/preview/'.length)).replace(/\//g, '\\');
+//     const pdfPath = `${BASE_DIR}\\${filePathbuf}`;
+
+//     console.log(`Processing PDF file at: ${pdfPath}`);
+
+//     // Ensure the file exists
+//     if (!fs.existsSync(pdfPath)) {
+//       return res.status(404).json({ error: "PDF file not found" });
+//     }
+
+//     // Read the PDF file and extract text
+//     const pdfBuffer = fs.readFileSync(pdfPath);
+//     const data = await pdfParse(pdfBuffer);
+//     const text = data.text;
+
+//     // Split text into chunks
+//     const chunks = chunkText(text, CHUNK_SIZE);
+
+//     const summaries = [];
+//     for (const chunk of chunks) {
+//       console.log(`Sending chunk to summarization API: ${chunk.substring(0, 100)}...`);
+//       const response = await fetch(
+//         "https://api-inference.huggingface.co/models/facebook/bart-large-cnn",
+//         {
+//           headers: {
+//             Authorization: `Bearer ${HUGGING_FACE_API_KEY}`,
+//             "Content-Type": "application/json",
+//           },
+//           method: "POST",
+//           body: JSON.stringify({
+//             inputs: chunk,
+//             parameters: {
+//               min_length: 50,
+//               max_length: 200,
+//             },
+//           }),
+//         }
+//       );
+
+//       if (response.status !== 200) {
+//         console.error(`Error from API: ${await response.text()}`);
+//         return res.status(response.status).json({ error: 'Failed to summarize part of the text' });
+//       }
+
+//       const result = await response.json();
+//       summaries.push(result[0].summary_text); // Append the summarized text
+//     }
+
+//     // Combine summaries and return
+//     const combinedSummary = summaries.join(' ');
+//     res.json({ text: combinedSummary });
+//   } catch (error) {
+//     console.error('Error processing PDF:', error);
+//     res.status(500).send({ error: 'Failed to process PDF' });
+//   }
 // });
+
 
 // Set up Multer storage to preserve original filenames and dynamic directories
 const storage = multer.diskStorage({
@@ -180,7 +324,6 @@ app.get("/api/files/preview/:filename", (req, res) => {
     res.sendFile(filePath);
   }
 });
-
 
 
 

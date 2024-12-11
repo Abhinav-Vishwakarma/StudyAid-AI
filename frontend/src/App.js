@@ -1,4 +1,6 @@
 import React, { useState,useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
+// import { useLocation } from "react-router-dom";
 import axios from 'axios';
 import "./App.css";
 const API_URL = "http://localhost:5000/api/files";
@@ -8,7 +10,7 @@ const App = () => {
     const [loading, setLoading] = useState(false);
     const [pdfFile, setPdfFile] = useState(null);
     const [pdfText, setPdfText] = useState('');
-
+    
     // Handle topic description generation
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -95,12 +97,34 @@ const navigateBack = () => {
 };
 
 // Open file preview
+// const handlePreview = (filename) => {
+//   const fileExtension = filename.split(".").pop().toLowerCase();
+//   const filePath = currentDir ? `${currentDir}/${filename}` : filename;
+//   setPreviewFile(`${API_URL}/preview/${encodeURIComponent(filePath)}`);
+
+//   // setPreviewFile(`${API_URL}/preview/${filePath}`);
+//   setFileType(fileExtension);
+// };
+// const [currentDir, setCurrentDir] = useState(""); 
+const navigate = useNavigate();
+
+
 const handlePreview = (filename) => {
   const fileExtension = filename.split(".").pop().toLowerCase();
+  const filePath = currentDir ? `${currentDir}/${filename}` : filename;
+  const fileUrl = `${API_URL}/preview/${encodeURIComponent(filePath)}`;
 
-  setPreviewFile(`${API_URL}/preview/${filename}`);
-  setFileType(fileExtension);
+  navigate("/result", {
+    state: {
+      fileUrl,
+      fileType: fileExtension,
+    },
+  });
 };
+
+
+
+
 
 // Close file preview
 const closePreview = () => {
@@ -180,28 +204,26 @@ useEffect(() => {
           </div>
 
           <div className="file-list">
-            <ul>
-              {files.map((file) => (
-                <li key={file.name}>
-                  {file.type === "directory" ? (
-                    <button onClick={() => navigateToDirectory(file.name)}>
-                      📁 {file.name}
-                    </button>
-                  ) : (
-                    <>
-                      📄 {file.name}
-                      <button onClick={() => handlePreview(file.name)}>
-                        Open
-                      </button>
-                      <button onClick={() => handleDelete(file.name)}>
-                        Delete
-                      </button>
-                    </>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
+  <ul>
+    {files.map((file) => (
+      <li key={file.name}>
+        {file.type === "directory" ? (
+  <button onClick={() => navigateToDirectory(file.name)}>
+    📁 {file.name}
+  </button>
+) : (
+  <span onClick={() => handlePreview(file.name)} className="file-name">
+    <span className={file.name.endsWith(".pdf") ? "icon-pdf file-icon" : "file-icon"}></span>
+    {file.name}
+  </span>
+)}
+
+      </li>
+    ))}
+  </ul>
+</div>
+
+          
         </>
       )}
     </div>

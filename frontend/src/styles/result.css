@@ -128,3 +128,21 @@ body {
     }
   }
   
+
+  .summary-container {
+    max-height: 300px; /* Adjust height as needed */
+    overflow-y: auto;
+    border: 2px solid #000; /* Darker border */
+    padding: 15px; /* Add more padding */
+    background-color: #eaeaea; /* Slightly darker background for contrast */
+    border-radius: 5px;
+  }
+  
+  .summary-text {
+    font-family: "Courier New", Courier, monospace; /* Typewriter-style font */
+    white-space: pre-wrap; /* Preserve formatting of text */
+    color: #000; /* Black text */
+    font-weight: bold; /* Make text bold */
+    font-size: 1rem; /* Adjust size if needed */
+  }
+  
