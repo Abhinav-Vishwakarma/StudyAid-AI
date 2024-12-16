@@ -7,7 +7,7 @@ import pdfParse from 'pdf-parse';
 import fs from "fs";
 import path from "path";
 import mysql from "mysql";
-
+import { PDFDocument } from 'pdf-lib';
 dotenv.config({ path: "../.env" });
 
 const app = express();
@@ -100,54 +100,163 @@ app.post('/generate-description', async (req, res) => {
         res.status(500).send('Error generating description.');
     }
 });
+// Route to preview a specific page of the PDF
+app.get('/api/files/preview/page', async (req, res) => {
+  try {
+    const { dir, page } = req.query;
+
+    if (!dir) {
+      return res.status(400).json({ error: "Directory path is required" });
+    }
+
+    if (!page || isNaN(page) || page < 1) {
+      return res.status(400).json({ error: "Valid page number is required" });
+    }
+
+    const previewIndex = dir.indexOf('/preview/');
+    if (previewIndex === -1) {
+      return res.status(400).json({ error: "Invalid directory format in 'dir' field" });
+    }
+
+    const filePathbuf = decodeURIComponent(dir.substring(previewIndex + '/preview/'.length)).replace(/\//g, '\\');
+    const pdfPath = `${BASE_DIR}\\${filePathbuf}`;
+
+    if (!fs.existsSync(pdfPath)) {
+      return res.status(404).json({ error: "PDF file not found" });
+    }
+
+    const pdfBuffer = fs.readFileSync(pdfPath);
+    const pdfDoc = await PDFDocument.load(pdfBuffer);
+
+    if (page > pdfDoc.getPageCount()) {
+      return res.status(400).json({ error: `Page number exceeds total pages (${pdfDoc.getPageCount()}) in the PDF` });
+    }
+
+    // Extract the specific page
+    const extractedPage = pdfDoc.getPage(Number(page) - 1); // Page indices start from 0
+    const newPdfDoc = await PDFDocument.create();
+    const [copiedPage] = await newPdfDoc.copyPages(pdfDoc, [Number(page) - 1]);
+    newPdfDoc.addPage(copiedPage);
+
+    const newPdfBytes = await newPdfDoc.save();
+
+    // Serve the extracted page as a downloadable PDF
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename=page-${page}.pdf`);
+    res.send(Buffer.from(newPdfBytes));
+  } catch (error) {
+    console.error('Error processing PDF:', error);
+    res.status(500).json({ error: 'Failed to process PDF page' });
+  }
+});
+
+
+
+
 
 // Route to handle PDF upload and text extraction
 
 app.post('/summarise', async (req, res) => {
   try {
-    const dir = req.body.dir; // Access 'dir' from the request body
-    const previewIndex = dir.indexOf('/preview/');
-    if (previewIndex !== -1) {
-      const filePathbuf = decodeURIComponent(dir.substring(previewIndex + '/preview/'.length)).replace(/\//g, '\\');
-      const pdfPath = `${BASE_DIR}\\${filePathbuf}`;
-      
-      console.log(`Processing PDF file at: ${pdfPath}`);
+    const { dir, page } = req.body; // Access 'dir' and 'page' from the request body
 
-      // Ensure the file exists
-      if (!fs.existsSync(pdfPath)) {
-        return res.status(404).json({ error: "PDF file not found" });
+    if (!dir) {
+      return res.status(400).json({ error: "Directory path is required" });
+    }
+
+    const previewIndex = dir.indexOf('/preview/');
+    if (previewIndex === -1) {
+      return res.status(400).json({ error: "Invalid directory format in 'dir' field" });
+    }
+
+    const filePathbuf = decodeURIComponent(dir.substring(previewIndex + '/preview/'.length)).replace(/\//g, '\\');
+    const pdfPath = `${BASE_DIR}\\${filePathbuf}`;
+
+    console.log(`Processing PDF file at: ${pdfPath}`);
+
+    if (!fs.existsSync(pdfPath)) {
+      return res.status(404).json({ error: "PDF file not found" });
+    }
+
+    const pdfBuffer = fs.readFileSync(pdfPath);
+
+    // Parse the PDF
+    const pdfData = await pdfParse(pdfBuffer);
+
+    if (page) {
+      // Validate the page number
+      if (isNaN(page) || page < 1 || page > pdfData.numpages) {
+        return res.status(400).json({ error: `Invalid page number. Please provide a page between 1 and ${pdfData.numpages}` });
       }
 
-      // Read the PDF file and extract text
-      const pdfBuffer = fs.readFileSync(pdfPath);
-      const data = await pdfParse(pdfBuffer);
-      // console.log(data.text)
-      // Return the extracted text
-      // res.json({ text: data.text });
-      // const data_for_summary=JSON.stringify(data.text)
-      // const response = await fetch(
-      //   "https://api-inference.huggingface.co/models/facebook/bart-large-cnn",
-      //   {
-      //     headers: {
-      //       Authorization: "Bearer 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",
-      //       "Content-Type": "application/json",
-      //     },
-      //     method: "POST",
-      //     body: JSON.stringify(data.text),
-      //   }
-      // );
-      // const result = await response.json();
-      res.json({ text: data.text });
-      // return result;
-      console.log(result)
+      // Extract text from the specified page
+      const pageText = pdfData.text
+        .split(/\f/) // Pages in pdf-parse are separated by form feed ("\f")
+        .map((pageText) => pageText.trim())[page - 1];
+
+      if (!pageText) {
+        return res.status(404).json({ error: `No text found on page ${page}` });
+      }
+
+      res.json({ page, text: pageText });
     } else {
-      res.status(400).json({ error: "Invalid directory format in 'dir' field" });
+      // Extract the entire PDF text if no page is specified
+      res.json({ text: pdfData.text });
     }
   } catch (error) {
     console.error('Error processing PDF:', error);
     res.status(500).send({ error: 'Failed to process PDF' });
   }
 });
+
+
+// ---------------------Summarise-----------------------------
+
+// app.post('/summarise', async (req, res) => {
+//   try {
+//     const dir = req.body.dir; // Access 'dir' from the request body
+//     const previewIndex = dir.indexOf('/preview/');
+//     if (previewIndex !== -1) {
+//       const filePathbuf = decodeURIComponent(dir.substring(previewIndex + '/preview/'.length)).replace(/\//g, '\\');
+//       const pdfPath = `${BASE_DIR}\\${filePathbuf}`;
+      
+//       console.log(`Processing PDF file at: ${pdfPath}`);
+
+//       // Ensure the file exists
+//       if (!fs.existsSync(pdfPath)) {
+//         return res.status(404).json({ error: "PDF file not found" });
+//       }
+
+//       // Read the PDF file and extract text
+//       const pdfBuffer = fs.readFileSync(pdfPath);
+//       const data = await pdfParse(pdfBuffer);
+//       // console.log(data.text)
+//       // Return the extracted text
+//       // res.json({ text: data.text });
+//       // const data_for_summary=JSON.stringify(data.text)
+//       // const response = await fetch(
+//       //   "https://api-inference.huggingface.co/models/facebook/bart-large-cnn",
+//       //   {
+//       //     headers: {
+//       //       Authorization: "Bearer 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",
+//       //       "Content-Type": "application/json",
+//       //     },
+//       //     method: "POST",
+//       //     body: JSON.stringify(data.text),
+//       //   }
+//       // );
+//       // const result = await response.json();
+//       res.json({ text: data.text });
+//       // return result;
+//       console.log(result)
+//     } else {
+//       res.status(400).json({ error: "Invalid directory format in 'dir' field" });
+//     }
+//   } catch (error) {
+//     console.error('Error processing PDF:', error);
+//     res.status(500).send({ error: 'Failed to process PDF' });
+//   }
+// });
 
 // Helper function to split text into chunks
 // const chunkText = (text, maxLength) => {
