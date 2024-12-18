@@ -9,6 +9,8 @@ import path from "path";
 import mysql from "mysql";
 import { PDFDocument } from 'pdf-lib';
 dotenv.config({ path: "../.env" });
+import * as pdfjsLib from 'pdfjs-dist';
+
 
 const app = express();
 const PORT = 5000;
@@ -36,13 +38,13 @@ const connection = mysql.createConnection({
 });
 
 // Connect to the database
-// connection.connect((err) => {
-//   if (err) {
-//     console.error('Error connecting to the database:', err.message);
-//     return;
-//   }
-//   console.log('Connected to the MySQL database.');
-// });
+connection.connect((err) => {
+  if (err) {
+    console.error('Error connecting to the database:', err.message);
+    return;
+  }
+  console.log('Connected to the MySQL database.');
+});
 
 // // Example query
 // connection.query('SELECT * FROM tc', (err, results) => {
@@ -159,7 +161,7 @@ app.get('/api/files/preview/page', async (req, res) => {
 app.post('/summarise', async (req, res) => {
   try {
     const { dir, page } = req.body; // Access 'dir' and 'page' from the request body
-
+    console.log(page)
     if (!dir) {
       return res.status(400).json({ error: "Directory path is required" });
     }
@@ -183,26 +185,27 @@ app.post('/summarise', async (req, res) => {
     // Parse the PDF
     const pdfData = await pdfParse(pdfBuffer);
 
-    if (page) {
-      // Validate the page number
-      if (isNaN(page) || page < 1 || page > pdfData.numpages) {
-        return res.status(400).json({ error: `Invalid page number. Please provide a page between 1 and ${pdfData.numpages}` });
-      }
+    // if (page) {
+    //   // Validate the page number
+    //   if (isNaN(page) || page < 1 || page > pdfData.numpages) {
+    //     return res.status(400).json({ error: `Invalid page number. Please provide a page between 1 and ${pdfData.numpages}` });
+    //   }
 
-      // Extract text from the specified page
-      const pageText = pdfData.text
-        .split(/\f/) // Pages in pdf-parse are separated by form feed ("\f")
-        .map((pageText) => pageText.trim())[page - 1];
+    //   // Extract text from the specified page
+    //   const pageText = pdfData.text
+    //     .split(/\f/) // Pages in pdf-parse are separated by form feed ("\f")
+    //     .map((pageText) => pageText.trim())[page - 1];
 
-      if (!pageText) {
-        return res.status(404).json({ error: `No text found on page ${page}` });
-      }
+    //   if (!pageText) {
+    //     return res.status(404).json({ error: `No text found on page ${page}` });
+    //   }
 
-      res.json({ page, text: pageText });
-    } else {
-      // Extract the entire PDF text if no page is specified
-      res.json({ text: pdfData.text });
-    }
+    //   res.json({ page, text: pageText });
+    // } else {
+    //   // Extract the entire PDF text if no page is specified
+    //   res.json({ text: pdfData.text });
+    // }
+    res.json({ text: pdfData.text });
   } catch (error) {
     console.error('Error processing PDF:', error);
     res.status(500).send({ error: 'Failed to process PDF' });
@@ -432,6 +435,29 @@ app.get("/api/files/preview/:filename", (req, res) => {
   } else {
     res.sendFile(filePath);
   }
+});
+
+app.get('/suggestions', (req, res) => {
+  const query = req.query.q;
+  if (!query) {
+    return res.json([]);
+  }
+
+  // Query database for suggestions
+  const sql = `SELECT topics,pdfPath,pageNumber FROM tc WHERE topics LIKE ? LIMIT 10`;
+  const searchQuery = `%${query}%`;
+
+  connection.query(sql, [searchQuery], (err, results) => {
+    if (err) {
+      console.error('Error fetching suggestions:', err);
+      return res.status(500).json({ error: 'Database query error' });
+    }
+    // Return results
+    console.log(results)
+    // console.log(results.rows)
+    res.json(results.map(row => row));
+    // res.json(results)
+  });
 });
 
 

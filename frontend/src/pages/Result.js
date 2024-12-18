@@ -17,13 +17,25 @@ const Result = () => {
   const [displayText, setDisplayText] = useState(""); // For typewriter effect
   const [isLoading, setIsLoading] = useState(false); // To handle loading state
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
+  const [pageNumber, setPageNumber] = useState(1);
+
 
   // Load file from state if available
+  // useEffect(() => {
+  //   if (state?.fileUrl && state?.fileType === "pdf") {
+  //     setPdfFile(state.fileUrl);
+  //     // console.log(state.pageNumber);
+  //     setPageNumber(state.pageNumber);
+  //   }
+  // }, [state]);
+
   useEffect(() => {
     if (state?.fileUrl && state?.fileType === "pdf") {
       setPdfFile(state.fileUrl);
+      setPageNumber(state?.pageNumber ?? 0); // Fallback to 1 if not provided
     }
   }, [state]);
+  
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -37,6 +49,7 @@ const Result = () => {
       setIsLoading(true); // Set loading state
       const response = await axios.post(`${API_URL}/summarise`, {
         dir: state.fileUrl, // Send in the request body
+        page: pageNumber,
       });
       const text = response.data.text; // Extract the summarized text
       setSummary(text); // Store full text
@@ -64,23 +77,14 @@ const Result = () => {
     type();
   };
   
-
   return (
     <div className="app-container">
       {/* PDF Viewer Section */}
       <div className="pdf-viewer-section">
-        <div className="file-upload">
-          <input
-            type="file"
-            accept=".pdf"
-            id="file-input"
-            onChange={handleFileChange}
-          />
-          <label htmlFor="file-input">Upload PDF</label>
-        </div>
+        
         {pdfFile ? (
           <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
-            <Viewer fileUrl={pdfFile} plugins={[defaultLayoutPluginInstance]} />
+            <Viewer fileUrl={pdfFile} plugins={[defaultLayoutPluginInstance]} initialPage={(pageNumber-1) || 0}/>
           </Worker>
         ) : (
           <div className="placeholder">
