@@ -1,18 +1,21 @@
 /* General container styling */
 .fileContainer {
   padding: 20px;
-  background-color: #f4f4f4;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  max-width: 800px;
-  margin: 20px auto;
+  margin: 20px;
   font-family: 'Arial', sans-serif;
+  /* height: 100%; */
+  width:100%;
+  background-image:url('../../public/assets/images/bg5.jpg');
+  background-size:cover;
+  background-repeat:no-repeat;
 }
 
 /* Heading styling */
 .heading {
   font-size: 2rem;
-  color: #333;
+  color: #ffffff;
   text-align: center;
   margin-bottom: 20px;
 }
@@ -72,10 +75,14 @@
   align-items: center;
   padding: 10px;
   border-radius: 8px;
-  background-color: #fff;
+  /* background-color: #7d99dfc7; */
+
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease, transform 0.2s ease;
   cursor: pointer;
+  background-image:url('../../public/assets/images/bg5.jpg');
+  background-size:cover;
+  background-repeat:no-repeat;
 }
 
 .fileItem:hover {
@@ -86,7 +93,7 @@
 .directoryButton {
   background: none;
   border: none;
-  color: #007bff;
+  color: #acf5ff;
   font-size: 1rem;
   cursor: pointer;
   display: flex;
@@ -102,14 +109,14 @@
 .fileName {
   flex-grow: 1;
   font-size: 1rem;
-  color: #333;
+  color: #ffffff;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
 .fileName:hover {
-  color: #2b81e2;
+  color: #20e1fb;
 }
 
 .fileName::before {

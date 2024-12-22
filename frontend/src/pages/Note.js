@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -9,19 +7,20 @@ import styles from "../styles/note.module.css";
 
 const API_URL = "http://localhost:5000/api/files";
 
-const Note = () => {
+const Note = ({selectedSem}) => {
   const [files, setFiles] = useState([]);
   const [currentDir, setCurrentDir] = useState("");
   const [error, setError] = useState("");
+  const [count,setCount]=useState(0);
   const navigate = useNavigate();
-
+  
   // Fetch files from the backend
-  const fetchFiles = async (dir = "") => {
+  const fetchFiles = async (dir = `/${selectedSem}/`) => {
     try {
-      const response = await axios.get(API_URL, { params: { dir } });
-      setFiles(response.data);
-      setCurrentDir(dir);
-      setError("");
+        const response = await axios.get(API_URL, { params: { dir } });
+        setFiles(response.data);
+        setCurrentDir(dir);
+        setError("");
     } catch (err) {
       setError("Error fetching files.");
       console.error(err);
@@ -32,6 +31,8 @@ const Note = () => {
   const navigateToDirectory = (dirName) => {
     const newPath = currentDir ? `${currentDir}/${dirName}` : dirName;
     fetchFiles(newPath);
+    setCount(count+1);
+    
   };
 
   // Navigate back to parent directory
@@ -39,6 +40,8 @@ const Note = () => {
     if (!currentDir) return;
     const parentDir = currentDir.split("/").slice(0, -1).join("/");
     fetchFiles(parentDir);
+    setCount(count-1);
+    
   };
 
   // Handle file preview
@@ -60,15 +63,15 @@ const Note = () => {
 
   return (
     <div className={styles.fileContainer}>
-      <h1 className={styles.heading}>File Explorer</h1>
+      <h1 className={styles.heading}>Notes 📁</h1>
 
       {error && <div className={styles.error}>{error}</div>}
 
       <div className={styles.controls}>
         <button
-          className={`${styles.button} ${!currentDir && styles.disabled}`}
+          className={`${styles.button} ${count==0 && styles.disabled}`}
           onClick={navigateBack}
-          disabled={!currentDir}
+          disabled={count==0}
         >
           Go Back
         </button>

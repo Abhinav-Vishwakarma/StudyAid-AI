@@ -1,0 +1,217 @@
+/* General Layout */
+.body_result {
+  margin: 0;
+  font-family: "Roboto", sans-serif;
+  /* background: linear-gradient(135deg, #1f2937, #3b4252); */
+  /* background: linear-gradient(90deg, #0062ff, #da61ff); */
+  
+  background-image:url('../../public/assets/images/bg5.jpg');
+  background-size:cover;
+  background-repeat:no-repeat;
+  color: #333;
+  overflow: hidden;
+}
+
+.app-container {
+  display: flex;
+  height: 100vh;
+  /* max-width: 1800px; */
+  margin: 20px 30px auto 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border-radius: 15px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+/* PDF Viewer Section */
+.pdf-viewer-section {
+  flex: 4;
+  border-right: 2px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.placeholder {
+  text-align: center;
+  color: #a0aec0;
+  font-size: 18px;
+  animation: fadeIn 1.5s ease-in-out;
+}
+
+/* Sidebar Section */
+.sidebar-section {
+  flex: 2;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  background: rgba(31, 41, 55, 0.8);
+  color: white;
+  border-left: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.sidebar-section h3 {
+  font-size: 26px;
+  margin-bottom: 20px;
+  color: #60a5fa;
+  animation: fadeIn 1s ease-in-out;
+}
+
+.sidebar-section p {
+  font-size: 16px;
+  color: #d1d5db;
+  margin-bottom: 15px;
+}
+
+.action-button {
+  /* width:fit-content; */
+  /* min-width: 70px; */
+  padding: 12px 20px;
+  margin: 10px 0;
+  background: linear-gradient(135deg, #4f46e5, #3b82f6);
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 16px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width:125px;
+  max-width: fit-content;
+}
+
+.action-button:hover {
+  background: linear-gradient(135deg, #4338ca, #2563eb);
+  /* transform: scale(1.05); */
+}
+
+.slider-container {
+  margin: 20px 0;
+  color: #a0aec0;
+}
+
+#wordLimit {
+  width: 100%;
+  appearance: none;
+  height: 5px;
+  background: #3b82f6;
+  border-radius: 5px;
+  outline: none;
+  transition: background 0.3s;
+}
+
+#wordLimit:hover {
+  background: #2563eb;
+}
+
+.chat-container {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+textarea {
+  width: 100%;
+  height: 80px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  resize: none;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+}
+
+.chat-send {
+  padding: 10px;
+  background: linear-gradient(135deg, #3b82f6, #60a5fa);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.chat-send:hover {
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  transform: scale(1.05);
+}
+
+.summary-container {
+  height: 400px;
+  overflow-y: auto;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  padding: 15px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: white;
+}
+
+.summary-text {
+  font-family: "Courier New", Courier, monospace;
+  white-space: pre-wrap;
+  font-size: 1rem;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.optionContainer{
+  display: flex;
+ 
+  gap:20px;
+  
+  flex-direction: 'column-reverse'
+
+}
+
+.prompt-bar {
+  display: flex;
+  align-items: center;
+  /* margin-bottom: 20px; */
+  margin-top: 10px;
+}
+
+.prompt-input {
+  flex-grow: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.submit-button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
