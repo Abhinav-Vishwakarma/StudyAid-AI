@@ -1,0 +1,85 @@
+/* AboutPage.module.css */
+
+.container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    color: #333;
+    width:100%;
+  }
+  
+  .description {
+    /* text-align: center; */
+    /* margin-bottom: 40px; */
+    color:white;
+  }
+  
+  .description h1 {
+    text-align: center;
+    font-size: 2.5rem;
+    color: #0073e6;
+  }
+  
+  .description p {
+    font-size: 1.2rem;
+    margin-top: 20px;
+    line-height: 1.3;
+  }
+  
+  .developers {
+    text-align: center;
+    color:white;
+  }
+  
+  .developers h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color:#0073e6
+  }
+  
+  .developerList {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+  
+  .developerCard {
+    background-color: #594B7B;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    width: 250px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+  }
+  
+  .developerCard:hover {
+    transform: translateY(-5px);
+  }
+  
+  .photo {
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    margin-bottom: 15px;
+  }
+  
+  .socialLinks {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  .icon {
+    font-size: 1.5rem;
+    color: #fdfdfd;
+    transition: color 0.3s ease;
+  }
+  
+  .icon:hover {
+    color: #0073e6;
+  }
+  

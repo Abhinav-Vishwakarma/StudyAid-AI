@@ -1,5 +1,5 @@
 import React, { useContext,useEffect,useState } from 'react';
-import { FaBars, FaSearch } from 'react-icons/fa';
+import { FaBars, FaSearch ,FaArrowLeft, FaBorderNone } from 'react-icons/fa';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { MdNoteAdd } from 'react-icons/md';
 import { LuNewspaper } from 'react-icons/lu';
@@ -7,6 +7,9 @@ import { FcAbout } from 'react-icons/fc';
 import { FaSearchengin } from 'react-icons/fa';
 import { MdBatchPrediction } from 'react-icons/md';
 import Note from './Note';
+import PYQs from './PYQs';
+import AboutPage from './About';
+import Predicted from './Predicted';
 import Select_Options from '../components/select_options';
 import select_options_styles from '../../src/styles/select_options.module.css';
 import AppContext from '../context/AppContext';
@@ -33,8 +36,8 @@ const Sidebar = ({ onSelect }) => {
       className={`bg-[#12001f] border-r border-gray-800 flex flex-col ${expanded ? 'w-64' : 'w-16'} transition-all duration-300`}
     >
       <Button className="justify-center" onClick={() => setExpanded(!expanded)}>
-        <span className="sr-only">Toggle sidebar</span>
-        <FaBars />
+        
+        {!expanded ? <FaBars /> : <FaArrowLeft className='text-xl'/>}
       </Button>
 
       <Button onClick={() => setActiveView('search')}>
@@ -66,7 +69,7 @@ const Sidebar = ({ onSelect }) => {
         <div className="p-4 text-xs text-gray-400 border-t border-gray-800">
           <p>Developed by</p>
           <p className="mt-0.75">Team "NextGen Nirmaam"</p>
-          <p className="mt-0.75">For more details  Go to About Section</p>
+          <p className="mt-0.75">For more details Go to About Section</p>
         </div>
       )}
     </div>
@@ -191,7 +194,7 @@ const Home = () => {
         <>
           <Select_Options
             initialValue={selectedSem}
-            // label="Sem"
+            label="Sem"
             options={Sem_options}
             onChange={handleSelectSemChange}
             sx={{ color: 'white' }}
@@ -202,20 +205,20 @@ const Home = () => {
     } else if (activeView === 'notes') {
       return <Note selectedSem={selectedSem} />;
     } else if (activeView === 'pyqs') {
-      return <div>pyqs</div>;
+      return <PYQs selectedSem={selectedSem}/>;
     } else if (activeView === 'predicte_paper') {
-      return <div>predict_paper</div>;
+      return <Predicted selectedSem={selectedSem}/>;
     } else if (activeView === 'about') {
-      return <div>About</div>;
+      return <AboutPage/>;
     } else {
       return (
         <>
           <Select_Options
             initialValue={selectedSem}
-            // label="Sem"
+            label=""
             options={Sem_options}
             onChange={handleSelectSemChange}
-            sx={{ color: 'white' }}
+            sx={{ color: 'white', }}
           />
           <ChatInterface selectedSem={selectedSem} />
         </>
@@ -224,18 +227,25 @@ const Home = () => {
   };
 
   return (
-    
     <div className="flex h-screen bg-[#1e0233] text-white">
       <Sidebar onSelect={setActiveView} />
       {selectedSem === '' ? (
         <div className={select_options_styles.container}>
-          <h1 className={select_options_styles.heading}>Select Semester</h1>
+            <span className="bg-gradient-to-r from-blue-400 to-pink-400 bg-clip-text text-transparent text-6xl">
+          Welcome To Study-Aid
+        </span>
+        <span className="bg-gradient-to-r from-blue-400 to-pink-400 bg-clip-text text-transparent text-2xl">
+          Demystifying The Chaos Of Learning..
+        </span>
+        <span className="bg-gradient-to-r from-blue-400 to-pink-400 bg-clip-text text-transparent text-3xl mt-20">
+          Select Your Semester
+        </span>
           <Select_Options
             initialValue=""
-            label="Sem"
+            label=""
             options={Sem_options}
             onChange={handleSelectSemChange}
-            sx={{ color: 'white' }}
+            
           />
         </div>
       ) : (
@@ -246,5 +256,8 @@ const Home = () => {
 };
 
 export default Home;
+
+
+
 
 

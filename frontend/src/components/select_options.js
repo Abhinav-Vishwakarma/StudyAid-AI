@@ -14,8 +14,8 @@ export default function Select_Options({ initialValue, label, options, onChange 
   };
 
   return (
-    <FormControl className={select_options_styles["form-control"]} sx={{ m: 1, minWidth: 120 }} size="small">
-      <InputLabel className={select_options_styles["select-label"]} id="select-label">{label}</InputLabel>
+    <FormControl className={select_options_styles["form-control"]} sx={{ m: 1,color: 'white' }} size='small'>
+      <InputLabel  className={select_options_styles["select-label"]} id="select-label">{label}</InputLabel>
       <Select
         labelId="select-label"
         id="select"
@@ -23,8 +23,9 @@ export default function Select_Options({ initialValue, label, options, onChange 
         label={label}
         onChange={handleChange}
         className={select_options_styles["select-options"]}
+        sx={{ color: 'white',bgcolor:'#594b7b61'}}
       >
-        <MenuItem value="">
+        <MenuItem value="" >
           <em>None</em>
         </MenuItem>
         {options.map((option, index) => (

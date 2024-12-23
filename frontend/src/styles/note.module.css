@@ -14,6 +14,7 @@
   background: linear-gradient(90deg, rgba(47, 11, 74, 0.357) 0%, rgba(105,9,121,1) 35%, rgba(40,0,45,1) 100%); */
   /* background-color: #594B7B; */
   background-color: #1E0233;
+  overflow-y:auto;
 
 }
 

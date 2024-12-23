@@ -8,20 +8,20 @@ import { FaFileDownload } from "react-icons/fa";
 
 const API_URL = "http://localhost:5000/api/files";
 
-const Note = ({selectedSem}) => {
+const Note = ({ selectedSem }) => {
   const [files, setFiles] = useState([]);
   const [currentDir, setCurrentDir] = useState("");
   const [error, setError] = useState("");
-  const [count,setCount]=useState(0);
+  const [count, setCount] = useState(0);
   const navigate = useNavigate();
-  
+
   // Fetch files from the backend
   const fetchFiles = async (dir = `/${selectedSem}/`) => {
     try {
-        const response = await axios.get(API_URL, { params: { dir } });
-        setFiles(response.data);
-        setCurrentDir(dir);
-        setError("");
+      const response = await axios.get(API_URL, { params: { dir } });
+      setFiles(response.data);
+      setCurrentDir(dir);
+      setError("");
     } catch (err) {
       setError("Error fetching files.");
       console.error(err);
@@ -32,8 +32,8 @@ const Note = ({selectedSem}) => {
   const navigateToDirectory = (dirName) => {
     const newPath = currentDir ? `${currentDir}/${dirName}` : dirName;
     fetchFiles(newPath);
-    setCount(count+1);
-    
+    setCount(count + 1);
+
   };
 
   // Navigate back to parent directory
@@ -41,8 +41,8 @@ const Note = ({selectedSem}) => {
     if (!currentDir) return;
     const parentDir = currentDir.split("/").slice(0, -1).join("/");
     fetchFiles(parentDir);
-    setCount(count-1);
-    
+    setCount(count - 1);
+
   };
 
   // Handle file preview
@@ -70,9 +70,9 @@ const Note = ({selectedSem}) => {
 
       <div className={styles.controls}>
         <button
-          className={`${styles.button} ${count==0 && styles.disabled}`}
+          className={`${styles.button} ${count == 0 && styles.disabled}`}
           onClick={navigateBack}
-          disabled={count==0}
+          disabled={count == 0}
         >
           Go Back
         </button>
@@ -81,36 +81,30 @@ const Note = ({selectedSem}) => {
       <div className={styles.fileList}>
         <ul>
           {files.map((file) => (
-            <li key={file.name} className={styles.fileItem} onClick={() => navigateToDirectory(file.name)}>
-              {file.type === "directory" ? (
-                <label
-                  className={styles.directoryButton}
-                  
-                >
-                  📁 {file.name}
-                </label>
-              ) : (
-               
-                <span
-                  onClick={() => handlePreview(file.name)}
-                  className={styles.fileName}
-                >
-                  {file.name.endsWith(".pdf") ? (
-                    <FontAwesomeIcon icon={faFilePdf} className={styles.fileIcon} />
-                  ) : (
-                    <span className={styles.genericIcon}>🗎</span>
-                  )}
-                  {file.name}
-                </span>
-                  
-                  
-
-              )}
-            </li>
+            (file.name === "pyqs" || file.name === "predicted") ? null : ( // Skip these folder names
+              <li key={file.name} className={styles.fileItem} onClick={() => navigateToDirectory(file.name)}>
+                {file.type === "directory" ? (
+                  <label className={styles.directoryButton}>
+                    📁 {file.name}
+                  </label>
+                ) : (
+                  <span onClick={() => handlePreview(file.name)} className={styles.fileName}>
+                    {file.name.endsWith(".pdf") ? (
+                      <FontAwesomeIcon icon={faFilePdf} className={styles.fileIcon} />
+                    ) : (
+                      <span className={styles.genericIcon}>🗎</span>
+                    )}
+                    {file.name}
+                  </span>
+                )}
+              </li>
+            )
           ))}
-        </ul>
-      </div>
+
+        
+      </ul>
     </div>
+    </div >
   );
 };
 
