@@ -1,1 +1,0 @@
-# StudyAid-AI

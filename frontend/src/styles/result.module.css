@@ -2,14 +2,14 @@
 .body_result {
   margin: 0;
   font-family: "Roboto", sans-serif;
-  /* background: linear-gradient(135deg, #1f2937, #3b4252); */
-  /* background: linear-gradient(90deg, #0062ff, #da61ff); */
+ 
   
-  background-image:url('../../public/assets/images/bg5.jpg');
+  /* background-image:url('../../public/assets/images/bg5.jpg');
   background-size:cover;
-  background-repeat:no-repeat;
+  background-repeat:no-repeat; */
   color: #333;
   overflow: hidden;
+  background-color: #1E0233;
 }
 
 .app-container {
@@ -49,7 +49,8 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  background: rgba(31, 41, 55, 0.8);
+  /* background: rgba(31, 41, 55, 0.8); */
+  background-color: #12001F;
   color: white;
   border-left: 2px solid rgba(255, 255, 255, 0.2);
 }
@@ -131,10 +132,10 @@ textarea {
 
 .chat-send {
   padding: 10px;
-  background: linear-gradient(135deg, #3b82f6, #60a5fa);
+  background: white;
   border: none;
   border-radius: 8px;
-  color: white;
+  color: rgb(0, 0, 0);
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -205,6 +206,7 @@ textarea {
   border: 1px solid #ccc;
   border-radius: 5px;
   margin-right: 10px;
+  color: black;
 }
 
 .submit-button {

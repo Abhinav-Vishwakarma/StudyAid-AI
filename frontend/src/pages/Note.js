@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilePdf } from "@fortawesome/free-solid-svg-icons";
 import styles from "../styles/note.module.css";
+import { FaFileDownload } from "react-icons/fa";
 
 const API_URL = "http://localhost:5000/api/files";
 
@@ -89,6 +90,7 @@ const Note = ({selectedSem}) => {
                   📁 {file.name}
                 </label>
               ) : (
+               
                 <span
                   onClick={() => handlePreview(file.name)}
                   className={styles.fileName}
@@ -100,6 +102,9 @@ const Note = ({selectedSem}) => {
                   )}
                   {file.name}
                 </span>
+                  
+                  
+
               )}
             </li>
           ))}

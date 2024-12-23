@@ -65,8 +65,8 @@ const Sidebar = ({ onSelect }) => {
       {expanded && (
         <div className="p-4 text-xs text-gray-400 border-t border-gray-800">
           <p>Developed by</p>
-          <p className="mt-1">Team "NextGen Nirmaam" ✨</p>
-          <p className="mt-1">For more details ➡️ Go to About Section</p>
+          <p className="mt-0.75">Team "NextGen Nirmaam"</p>
+          <p className="mt-0.75">For more details  Go to About Section</p>
         </div>
       )}
     </div>
@@ -191,7 +191,7 @@ const Home = () => {
         <>
           <Select_Options
             initialValue={selectedSem}
-            label="Sem"
+            // label="Sem"
             options={Sem_options}
             onChange={handleSelectSemChange}
             sx={{ color: 'white' }}
@@ -212,7 +212,7 @@ const Home = () => {
         <>
           <Select_Options
             initialValue={selectedSem}
-            label="Sem"
+            // label="Sem"
             options={Sem_options}
             onChange={handleSelectSemChange}
             sx={{ color: 'white' }}
@@ -224,6 +224,7 @@ const Home = () => {
   };
 
   return (
+    
     <div className="flex h-screen bg-[#1e0233] text-white">
       <Sidebar onSelect={setActiveView} />
       {selectedSem === '' ? (

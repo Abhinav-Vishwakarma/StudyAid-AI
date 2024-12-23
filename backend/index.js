@@ -116,7 +116,7 @@ async function extractPageRangeAndText(pdfPath, startPage, endPage) {
   const newPdf = await PDFDocument.create();
 
   // Ensure the page range is valid
-  if (startPage < 1 || endPage > pdfDoc.getPageCount() || startPage > endPage) {
+  if (startPage < 1 || endPage > pdfDoc.getPageCount()) {
     throw new Error('Invalid page range');
   }
 
@@ -148,16 +148,29 @@ async function extractPageRangeAndText(pdfPath, startPage, endPage) {
   return pdfData.text;
 }
 
-
+app.post('/prompt',async(req,res)=>{
+  const genAI = new GoogleGenerativeAI(process.env.GEM_API);
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const {prompt}=req.body;
+  // console.log(req.body)
+  try{
+    const result = await model.generateContent(prompt);
+    const markdownResult = result.response.text();
+    const plainText = markdownResult.replace(/[#_*`]/g, "");
+    res.json({ text: plainText});
+  }catch(err){
+    console.log(err)
+  }
+})
 
 app.post('/summarise', async (req, res) => {
   const genAI = new GoogleGenerativeAI(process.env.GEM_API);
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
+  
   
   try {
-    const { dir, page } = req.body; // Access 'dir' and 'page' from the request body
-    console.log(page)
+    const { dir, pageRange } = req.body; // Access 'dir' and 'page' from the request body
+    console.log(pageRange);
     if (!dir) {
       return res.status(400).json({ error: "Directory path is required" });
     }
@@ -175,17 +188,34 @@ app.post('/summarise', async (req, res) => {
     if (!fs.existsSync(pdfPath)) {
       return res.status(404).json({ error: "PDF file not found" });
     }
-    
-    const textData=await extractPageRangeAndText(pdfPath,1,2);
-    console.log(textData)
-    res.json({text:textData});
+    if(pageRange[0]==pageRange[1]){
+      const textData=await extractPageRangeAndText(pdfPath,pageRange[0],pageRange[0]);
+      // res.json({text:textData});
+      const prompt = `Summarize the following text in brief also expand the topic:\n\n${textData}`;
+      const result = await model.generateContent(prompt);
+      const markdownResult = result.response.text();
+      const plainText = markdownResult.replace(/[#_*`]/g, "");
+      res.json({ text: plainText});
+    }else{
+      const textData=await extractPageRangeAndText(pdfPath,pageRange[0],pageRange[1]);
+      // res.json({text:textData});
+      const prompt = `Summarize the following text in brief also expand the topic:\n\n${textData}`;
+      const result = await model.generateContent(prompt);
+      
+      const markdownResult = result.response.text();
+      const plainText = markdownResult.replace(/[#_*`]/g, "");
+      res.json({ text: plainText});
+    }
+    // const textData=await extractPageRangeAndText(pdfPath,1,2);
+    // console.log(textData)
+    // res.json({text:textData});
     
     // const pdfBuffer = fs.readFileSync(pdfPath);
 
     // Parse the PDF
     // const pdfData = await pdfParse(pdfBuffer);
     // res.json({text:pdfData.text});
-    // const prompt = `Summarize the following text:\n\n${pdfData.text}`;
+    // const prompt = `Summarize the following text in brief:\n\n${pdfData.text}`;
     // const result = await model.generateContent(prompt);
     
     // const markdownResult = result.response.text();

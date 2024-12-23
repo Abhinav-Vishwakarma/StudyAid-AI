@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef  } from "react";
 import { Viewer, Worker } from "@react-pdf-viewer/core";
 import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
 import { useLocation } from "react-router-dom";
@@ -9,6 +9,7 @@ import axios from "axios";
 import { MdSend, MdStop } from 'react-icons/md';
 import Slider from '@mui/material/Slider';
 import Box from '@mui/material/Box';
+import { MdMotionPhotosPaused } from "react-icons/md";
 
 
 const API_URL = "http://localhost:5000";
@@ -43,7 +44,7 @@ const Result = () => {
       setIsLoading(true); // Set loading state
       const response = await axios.post(`${API_URL}/summarise`, {
         dir: state.fileUrl, // Send in the request body
-        page: pageNumber,
+        pageRange: value,
       });
       const text = response.data.text; // Extract the summarized text
       setSummary(text); // Store full text
@@ -52,17 +53,31 @@ const Result = () => {
     } catch (error) {
       console.error("Error during summarise:", error);
       setSummary("Failed to fetch summary. Please try again."); // Error message
-    } finally {
-      setIsLoading(false); // End loading state
     }
   };
+  const typewriterActive = useRef(true); 
+  // const typeWriterEffect = (text) => {
+  //   let index = 0;
+  //   const speed = 10; // Faster typing speed (ms per character)
 
+  //   const type = () => {
+  //     if (index < text.length) {
+  //       setDisplayText((prev) => prev + text[index]);
+  //       index++;
+  //       setTimeout(type, speed);
+  //     }
+  //   };
+  //   type();
+  //   setIsSending(false)
+  //   setIsLoading(false)
+  // };
   const typeWriterEffect = (text) => {
     let index = 0;
     const speed = 10; // Faster typing speed (ms per character)
+    typewriterActive.current = true; // Enable typewriter effect
 
     const type = () => {
-      if (index < text.length) {
+      if (index < text.length && typewriterActive.current) {
         setDisplayText((prev) => prev + text[index]);
         index++;
         setTimeout(type, speed);
@@ -70,6 +85,11 @@ const Result = () => {
     };
     type();
   };
+
+  const handleStop = () => {
+    typewriterActive.current = false; // Disable typewriter effect
+  };
+
 
   const [prompt, setPrompt] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -84,21 +104,25 @@ const Result = () => {
 
     try {
       // Simulate sending the prompt (replace with your actual API call)
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate 1-second delay
+      const response = await axios.post(`${API_URL}/prompt`, {
+        prompt:`${prompt} ${summary}`
+      });
+      const text = response.data.text; // Extract the summarized text
+      setSummary(text); // Store full text
+      setDisplayText(""); // Reset display text for typewriter effect
+      typeWriterEffect(text); // Start the typewriter effect
+      // await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate 1-second delay
 
       // Handle successful submission (e.g., display results)
-      console.log('Prompt submitted:', prompt); 
+      // console.log('Prompt submitted:', prompt); 
     } catch (error) {
       // Handle errors (e.g., display error message)
       console.error('Error submitting prompt:', error);
-    } finally {
-      setIsSending(false); 
-    }
-
+    } 
     setPrompt(''); 
   };
 
-  const [value, setValue] = React.useState([1, 37]);
+  const [value, setValue] = React.useState([1,numPages]);
 
   const handleRangeChange = (event, newValue) => {
     setValue(newValue);
@@ -106,7 +130,11 @@ const Result = () => {
   function valuetext(value) {
     return `${value}°C`;
   }
-
+  useEffect(() => {
+    if (numPages > 0) {
+      setValue([1, numPages]); // Set the range to cover all pages
+    }
+  }, [numPages]);
   return (
     <div className={resultStyle.body_result}>
       <div className={resultStyle["app-container"]}>
@@ -118,6 +146,9 @@ const Result = () => {
                 fileUrl={pdfFile}
                 plugins={[defaultLayoutPluginInstance]}
                 initialPage={(pageNumber - 1) || 0}
+                onDocumentLoad={(e)=>{
+                  setNumPages(e.doc.numPages);
+                }}
               />
             </Worker>
           ) : (
@@ -145,13 +176,13 @@ const Result = () => {
             
             }}>
               <Slider
-                getAriaLabel={() => 'Temperature range'}
+                getAriaLabel={() => 'page range'}
                 value={value}
                 onChange={handleRangeChange}
                 valueLabelDisplay="on"
                 getAriaValueText={valuetext}
                 min={1}
-                max={100}
+                max={numPages}
               />
             </Box>
             {/* <button
@@ -182,7 +213,7 @@ const Result = () => {
           disabled={isSending} 
         />
         {isSending ? (
-          <button type="button" className={resultStyle["submit-button"]} disabled>
+          <button type="button" className={resultStyle["submit-button"]} onClick={handleStop} disabled={!isLoading && !isSending}>
           <MdStop />
         </button>
         ) : (
