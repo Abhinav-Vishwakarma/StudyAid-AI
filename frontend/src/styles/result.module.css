@@ -95,19 +95,9 @@
   color: #a0aec0;
 }
 
-#wordLimit {
-  width: 100%;
-  appearance: none;
-  height: 5px;
-  background: #3b82f6;
-  border-radius: 5px;
-  outline: none;
-  transition: background 0.3s;
-}
 
-#wordLimit:hover {
-  background: #2563eb;
-}
+
+
 
 .chat-container {
   margin-top: 20px;

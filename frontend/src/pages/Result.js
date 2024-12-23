@@ -9,7 +9,7 @@ import axios from "axios";
 import { MdSend, MdStop } from 'react-icons/md';
 import Slider from '@mui/material/Slider';
 import Box from '@mui/material/Box';
-import { MdMotionPhotosPaused } from "react-icons/md";
+
 
 
 const API_URL = "http://localhost:5000";
@@ -42,6 +42,7 @@ const Result = () => {
   const handleSummarise = async () => {
     try {
       setIsLoading(true); // Set loading state
+      setIsSending(true)
       const response = await axios.post(`${API_URL}/summarise`, {
         dir: state.fileUrl, // Send in the request body
         pageRange: value,
@@ -55,39 +56,45 @@ const Result = () => {
       setSummary("Failed to fetch summary. Please try again."); // Error message
     }
   };
-  const typewriterActive = useRef(true); 
-  // const typeWriterEffect = (text) => {
-  //   let index = 0;
-  //   const speed = 10; // Faster typing speed (ms per character)
+  const typewriterActive = useRef(true);
+  const summaryContainerRef = useRef(null); // Ref for the summary container
 
-  //   const type = () => {
-  //     if (index < text.length) {
-  //       setDisplayText((prev) => prev + text[index]);
-  //       index++;
-  //       setTimeout(type, speed);
-  //     }
-  //   };
-  //   type();
-  //   setIsSending(false)
-  //   setIsLoading(false)
-  // };
-  const typeWriterEffect = (text) => {
+  const typeWriterEffect = async (text) => {
     let index = 0;
     const speed = 10; // Faster typing speed (ms per character)
     typewriterActive.current = true; // Enable typewriter effect
-
+  
     const type = () => {
-      if (index < text.length && typewriterActive.current) {
-        setDisplayText((prev) => prev + text[index]);
-        index++;
-        setTimeout(type, speed);
-      }
+      return new Promise((resolve) => {
+        const typeNext = () => {
+          if (index < text.length && typewriterActive.current) {
+            setDisplayText((prev) => prev + text[index]);
+            // Scroll the container to the bottom
+            if (summaryContainerRef.current) {
+              summaryContainerRef.current.scrollTop =
+                summaryContainerRef.current.scrollHeight;
+            }
+
+            index++;
+            setTimeout(typeNext, speed);
+          } else {
+            resolve(); // Resolve the promise when typing is complete
+          }
+        };
+        typeNext();
+      });
     };
-    type();
+  
+    await type();
+    setIsLoading(false); // Set these only after typing is complete
+    setIsSending(false);
   };
+  
 
   const handleStop = () => {
     typewriterActive.current = false; // Disable typewriter effect
+    setIsLoading(false)
+    setIsSending(false)
   };
 
 
@@ -103,7 +110,6 @@ const Result = () => {
     setIsSending(true); 
 
     try {
-      // Simulate sending the prompt (replace with your actual API call)
       const response = await axios.post(`${API_URL}/prompt`, {
         prompt:`${prompt} ${summary}`
       });
@@ -111,10 +117,6 @@ const Result = () => {
       setSummary(text); // Store full text
       setDisplayText(""); // Reset display text for typewriter effect
       typeWriterEffect(text); // Start the typewriter effect
-      // await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate 1-second delay
-
-      // Handle successful submission (e.g., display results)
-      // console.log('Prompt submitted:', prompt); 
     } catch (error) {
       // Handle errors (e.g., display error message)
       console.error('Error submitting prompt:', error);
@@ -128,7 +130,7 @@ const Result = () => {
     setValue(newValue);
   };
   function valuetext(value) {
-    return `${value}°C`;
+    return `${value}`;
   }
   useEffect(() => {
     if (numPages > 0) {
@@ -167,8 +169,9 @@ const Result = () => {
               className={resultStyle["action-button"]}
               onClick={handleSummarise}
               disabled={isLoading} // Disable button while loading
+              style={isLoading?{background:"grey"}:null}
             >
-              {isLoading ? "Summarizing..." : "Summarize Page Range"}
+              {isLoading? "Summarizing..." : "Summarize Page Range"}
             </button>
             <Box sx={{ width:200,
             display: 'flex', 
@@ -185,18 +188,11 @@ const Result = () => {
                 max={numPages}
               />
             </Box>
-            {/* <button
-              className={resultStyle["action-button"]}
-              onClick={() => alert("Expanding topic...")}
-            >
-              Expand Topic
-            </button> */}
-                
           </div>
           
           <div className={resultStyle["insights"]}>
             <h4>Discover More</h4>
-            <div className={resultStyle["summary-container"]}>
+            <div className={resultStyle["summary-container"]} ref={summaryContainerRef}>
               <p className={resultStyle["summary-text"]}>
                 {displayText || "Insights and analysis will appear here."}
               </p>

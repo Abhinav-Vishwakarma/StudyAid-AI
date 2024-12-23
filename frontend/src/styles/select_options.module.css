@@ -51,3 +51,9 @@
       background-color: #594b7b7c;
     }
   }
+  .alert {
+    color: red;
+    font-weight: bold;
+    text-align: center;
+  }
+  
