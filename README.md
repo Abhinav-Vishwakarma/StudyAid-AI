@@ -105,7 +105,7 @@ CREATE TABLE tc (
 ```bash
 cd backend
 npm install
-npm start
+nodemon index.js
 ```
 
 ### 5. Set Up Frontend:
